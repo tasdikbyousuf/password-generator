@@ -1,43 +1,53 @@
+import re
 import secrets
 import string
 
-def password_generator(length, digit, special):
+def generate_password(length=16, nums=1, special_chars=1, uppercase=1, lowercase=1):
     """
-    Generates a password with specified length and optional inclusion of digits and special characters.
+    Generate a random password with specified constraints.
 
-    Parameters:
-    - length (int): Total length of the password.
-    - digit (str): 'y' if including digits, otherwise empty string.
-    - special (str): 'y' if including special characters, otherwise empty string.
+    Args:
+        length (int): Length of the password (default is 16).
+        nums (int): Minimum number of digits in the password (default is 1).
+        special_chars (int): Minimum number of special characters in the password (default is 1).
+        uppercase (int): Minimum number of uppercase letters in the password (default is 1).
+        lowercase (int): Minimum number of lowercase letters in the password (default is 1).
 
     Returns:
-    - None: Prints the generated password.
+        str: Generated password meeting the specified constraints.
     """
+    
+    # Define the possible characters for the password
+    letters = string.ascii_letters
+    digits = string.digits
+    symbols = string.punctuation
 
-    pass_letters = string.ascii_letters
-    pass_digits = string.digits
-    pass_special = string.punctuation
+    # Combine all characters
+    all_characters = letters + digits + symbols
 
-    password = ''
+    while True:
+        password = ''
+        # Generate password
+        for _ in range(length):
+            password += secrets.choice(all_characters)
+        
+        # Constraints to be satisfied for the password
+        constraints = [
+            (nums, r'\d'),  # At least 'nums' digits
+            (special_chars, fr'[{symbols}]'),  # At least 'special_chars' special characters
+            (uppercase, r'[A-Z]'),  # At least 'uppercase' uppercase letters
+            (lowercase, r'[a-z]')   # At least 'lowercase' lowercase letters
+        ]
 
-    if digit == "y" and special == "y":
-        pass_characters = pass_letters + pass_digits + pass_special
-    elif digit == "y" and special != "y":
-        pass_characters = pass_letters + pass_digits
-    elif special == "y" and digit != "y":
-        pass_characters = pass_letters + pass_special
-    else:
-        print("Error: You must select letters and at least one more criterion to generate a password.")
-        return
+        # Check if all constraints are met
+        if all(
+            constraint <= len(re.findall(pattern, password))
+            for constraint, pattern in constraints
+        ):
+            break
+    
+    return password
 
-    for i in range(length):
-        password += secrets.choice(pass_characters)
-    print("Your password is: ")
-    print(password)
-
-pass_length = int(input("Enter the total password length you want: "))
-print("Warning: You must select letters and at least one more criterion to generate a password.")
-want_digit = input("Press 'y' if you want numbers or press enter: ")
-want_special = input("Press 'y' if you want special characters or press enter: ")
-
-password_generator(pass_length, want_digit, want_special) 
+if __name__ == '__main__':
+    new_password = generate_password()
+    print('Generated password:', new_password) 
